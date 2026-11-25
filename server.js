@@ -3,13 +3,16 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const connectDB = require("./config/database");
-const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const patientRoutes = require("./routes/patientRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+
+const authMiddleware = require("./middlewares/authMiddleware");
 
 const app = express();
 
@@ -18,6 +21,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
     res.json({
@@ -25,13 +30,13 @@ app.get("/", (req, res) => {
     });
 });
 
+app.use("/api/auth", authRoutes);
+
 // User routes
-app.use("/api/users", userRoutes);
-app.use("/api/doctors", doctorRoutes);
-app.use("/api/patients", patientRoutes);
-app.use("/api/doctors", doctorRoutes);
-app.use("/api/patients", patientRoutes);
-app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/doctors", authMiddleware, doctorRoutes);
+app.use("/api/patients", authMiddleware, patientRoutes);
+app.use("/api/dashboard", authMiddleware, dashboardRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5001;
 
