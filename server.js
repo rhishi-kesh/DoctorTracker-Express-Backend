@@ -18,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://doctor-tracker-eight-kohl.vercel.app",
     credentials: true,
   }),
 );
